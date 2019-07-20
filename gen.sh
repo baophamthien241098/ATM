@@ -1,0 +1,1 @@
+protoc ATMpd/atmpd.proto --go_out=plugins:.

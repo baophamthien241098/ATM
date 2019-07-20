@@ -1,0 +1,26 @@
+syntax ="proto3";
+package proto3;
+option go_package="ATMpd";
+message Account {
+    string ID = 1;
+    int64 Number = 2;
+}
+
+message MoneyResquest {
+    Account Account  =1;  
+}
+message MoneyResponse {
+    int64 Number = 1; 
+}
+message GetMoneyRequest {
+    string ID = 1;
+}
+ 
+
+service ATMService {
+    rpc SetMoney (MoneyResquest) returns (MoneyResponse);
+    rpc IncreMoney (MoneyResquest) returns (MoneyResponse);
+    rpc DecreMoney (MoneyResquest) returns (MoneyResponse);
+    rpc GetMoney (GetMoneyRequest) returns (MoneyResponse);
+
+}
