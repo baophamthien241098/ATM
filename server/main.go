@@ -8,9 +8,7 @@ import (
 
 	ATMpd "github.com/ATM/ATMpd"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 )
 
 type server struct{}
@@ -33,40 +31,43 @@ func (*server) GetMoney(ctx context.Context, req *ATMpd.GetMoneyRequest) (*ATMpd
 	if err == false {
 		return &ATMpd.MoneyResponse{
 			Number: 0,
-		},nil
+		}, nil
 	}
 	return &ATMpd.MoneyResponse{
 		Number: value,
 	}, nil
 }
 func (*server) IncreMoney(ctx context.Context, req *ATMpd.MoneyResquest) (*ATMpd.MoneyResponse, error) {
+	defer sw.Unlock()
+	sw.Lock()
 	account := req.GetAccount()
 	value, err := arr[account.GetID()]
 	if err == false {
-		arr[account.GetID()] = 0 
+		arr[account.GetID()] = 0
 		return &ATMpd.MoneyResponse{
 			Number: 0,
-		},nil
+		}, nil
 	}
 	arr[account.GetID()] = value + account.GetNumber()
 	return &ATMpd.MoneyResponse{Number: arr[account.GetID()]}, nil
 }
 func (*server) DecreMoney(ctx context.Context, req *ATMpd.MoneyResquest) (*ATMpd.MoneyResponse, error) {
+	defer sw.Unlock()
+	sw.Lock()
 	account := req.GetAccount()
 	value, err := arr[account.GetID()]
 	if err == false {
-		arr[account.GetID()] = 0 
+		arr[account.GetID()] = 0
 		return &ATMpd.MoneyResponse{
 			Number: 0,
-		},nil
+		}, nil
 	}
-	arr[account.GetID()] =  account.GetNumber() -value 
+	arr[account.GetID()] = account.GetNumber() - value
 	return &ATMpd.MoneyResponse{Number: arr[account.GetID()]}, nil
 }
 
-
 func main() {
-	lis, err := net.Listen("tcp","0.0.0.0:50051")
+	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
 		log.Fatalf("Error %v\n", err)
 	}
